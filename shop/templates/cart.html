@@ -1,0 +1,78 @@
+{% extends 'base.html' %} 
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/cart.css' %}">
+{% endblock %}
+
+{% block search_bar %}
+{% endblock %}
+
+{% block content %}
+<div class="cart-container">
+    <h2 class="cart-header">თქვენი კალათა</h2>
+
+    {% if cart_items %}
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>პროდუქტი</th>
+                    <th>ფასი</th>
+                    <th>რაოდენობა</th>
+                    <th>ჯამი</th>
+                    <th>ქმედება</th> </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                    <tr>
+                        <td class="cart-product-cell">
+                            {% if item.product.image %}
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.title }}" class="cart-product-image">
+                            {% endif %}
+                            <strong>{{ item.product.title }}</strong>
+                        </td>
+                        <td>{{ item.product.price }} ₾</td>
+                        
+                        <td>
+                            <div class="quantity-controls">
+                                <form action="{% url 'update_cart' item.product.id %}" method="POST" style="margin:0;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="decrease">
+                                    <button type="submit" class="qty-btn">-</button>
+                                </form>
+                                
+                                <span class="qty-display">{{ item.quantity }}</span>
+                                
+                                <form action="{% url 'update_cart' item.product.id %}" method="POST" style="margin:0;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="increase">
+                                    <button type="submit" class="qty-btn">+</button>
+                                </form>
+                            </div>
+                        </td>
+                        
+                        <td class="cart-total-cell">{{ item.total }} ₾</td>
+                        
+                        <td>
+                            <form action="{% url 'remove_from_cart' item.product.id %}" method="POST" style="margin:0;">
+                                {% csrf_token %}
+                                <button type="submit" class="remove-btn">✖ წაშლა</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="cart-summary">
+            <h3>სულ გადასახდელი: <span class="cart-summary-total">{{ total_price }} ₾</span></h3>
+            <button class="checkout-btn">ყიდვა</button>
+        </div>
+    {% else %}
+        <div class="empty-cart-message">
+            <h3>კალათა ცარიელია 🛒</h3>
+            <a href="{% url 'home' %}" class="continue-shopping-btn">პროდუქტების ნახვა</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

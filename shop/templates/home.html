@@ -1,0 +1,86 @@
+{% extends 'base.html' %} 
+
+{% block content %}
+<div class="home-container">
+    
+    <aside class="sidebar">
+        <form method="GET" action="{% url 'home' %}">
+            <h3 style="margin-top: 0; border-bottom: 2px solid #247e34; padding-bottom: 10px;">ფილტრი</h3>
+            
+            <input type="hidden" name="q" value="{{ request.GET.q|default_if_none:'' }}">
+
+            <div class="filter-group">
+                <label>კატეგორია</label>
+                <select name="category">
+                    <option value="ყველა">ყველა</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat }}" {% if cat == selected_category %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>ბრენდი</label>
+                <select name="brand">
+                    <option value="ყველა">ყველა</option>
+                    {% for br in brands %}
+                        <option value="{{ br }}" {% if br == selected_brand %}selected{% endif %}>{{ br }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>ფასი: <span id="priceValue">{{ selected_price }}</span> ₾</label>
+                <input type="range" id="priceRange" name="price" 
+                       min="{{ min_price }}" 
+                       max="{{ max_price }}" 
+                       value="{{ selected_price }}" 
+                       style="width: 92%;">
+            </div>
+            
+            <div class="filter-group">
+                <label>რეიტინგი</label>
+                <input type="number" name="rating" min="1" max="5" placeholder="1-5" value="{{ request.GET.rating }}">
+            </div>
+
+            <button type="submit" class="filter-btn">გაფილტვრა</button>
+        </form>
+    </aside>
+
+    <main class="main-content">
+        <div class="product-grid">
+            {% for product in products %}
+                <div class="product-card">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.title }}" class="product-image">
+                    {% endif %}
+                    
+                    <a href="{% url 'product_detail' product.id %}" class="title-link">
+                        <h3 class="product-title">{{ product.title }}</h3>
+                    </a>
+                    
+                    <p class="product-price">ფასი: {{ product.price }} ₾</p>
+                    <p class="product-rating">რეიტინგი: {{ product.average_rating }} ⭐</p>
+                    
+                    <form action="{% url 'add_to_cart' product.id %}" method="POST" style="width: 100%;">
+                        {% csrf_token %}
+                        <button type="submit" class="add-to-cart-btn">კალათაში დამატება</button>
+                    </form>
+                </div>
+            {% empty %}
+                <div class="no-products-message">
+                <h3 style="font-size: 24px; margin-bottom: 10px;">🔍 პროდუქტები ვერ მოიძებნა</h3>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+
+<script>
+        const priceRange = document.getElementById('priceRange');
+        const priceValue = document.getElementById('priceValue');
+        priceRange.addEventListener('input', function() {
+            priceValue.textContent = this.value;
+        });
+    </script>
+{% endblock %}

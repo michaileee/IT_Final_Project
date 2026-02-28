@@ -1,0 +1,90 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <title>ონლაინ მაღაზია</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    {% block extra_css %}
+    {% endblock %}
+</head>
+<body>
+
+    <header class="top-nav">
+        <div class="nav-left">
+            <a href="/">ონლაინ მაღაზია</a> 
+        </div>
+        <div class="nav-center">
+            {% block search_bar %}
+            <form method="GET" action="{% url 'home' %}" style="display: flex; justify-content: center;">
+                <input type="text" name="q" class="search-bar" placeholder="ძებნა ..." value="{{ request.GET.q|default_if_none:'' }}">
+                <button type="submit" style="display: none;">ძებნა</button>
+            </form>
+            {% endblock %}
+        </div>
+        <div class="nav-right" style="display: flex; align-items: center; justify-content: flex-end; gap: 15px;">
+            
+            <div class="auth-links" style="display: flex; align-items: center; gap: 10px; white-space: nowrap;">
+                {% if request.user.is_authenticated %}
+                    <span style="color: #ccc; font-size: 14px;">გამარჯობა, <strong style="color: white;">{{ request.user.username }}</strong></span>
+                    
+                    <a href="{% url 'logout' %}" class="logout-icon" title="სისტემიდან გამოსვლა">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                {% else %}
+                    <a href="{% url 'login' %}" style="font-size: 15px; display: flex; align-items: center; gap: 5px;">
+                        <i class="fas fa-user-circle"></i> შესვლა
+                    </a>
+                    <span style="color: #555;">|</span>
+                    <a href="{% url 'register' %}" style="font-size: 15px;">რეგისტრაცია</a>
+                {% endif %}
+            </div>
+
+            <div class="cart-dropdown-wrapper">
+                <a href="{% url 'cart' %}" class="cart-btn" style="text-decoration: none; display: flex; align-items: center; gap: 5px;">
+                    <i class="fas fa-shopping-cart"></i> კალათა ({{ nav_total_quantity }})
+                </a>
+                
+                <div class="cart-dropdown-content">
+                    {% if nav_cart_items %}
+                        {% for item in nav_cart_items %}
+                            <div class="dropdown-item">
+                                <span>{{ item.product.title }} (x{{ item.quantity }})</span>
+                                <span>{{ item.total }} ₾</span>
+                            </div>
+                        {% endfor %}
+                        <div class="dropdown-total">ჯამი: {{ nav_total_price }} ₾</div>
+                    {% else %}
+                        <p style="color: #666; text-align: center; margin: 10px 0;">კალათა ცარიელია</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        </div>
+    </header>
+    {% if messages %}
+        <div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+            {% for message in messages %}
+                <div style="background-color: #4CAF50; color: white; padding: 15px 25px; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 10px; font-weight: bold;">
+                    ✅ {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+        
+        <script>
+            setTimeout(function() {
+                var toast = document.getElementById('toast-container');
+                if (toast) toast.style.display = 'none';
+            }, 3000);
+        </script>
+    {% endif %}
+
+    <div class="content">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+</body>
+</html>

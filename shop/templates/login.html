@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+
+{% block search_bar %}
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>სისტემაში შესვლა</h2>
+    
+    <form method="POST" action="">
+        {% csrf_token %}
+        {{ form.as_p }} 
+        <button type="submit" class="auth-btn login-btn">შესვლა</button>
+    </form>
+    
+    <p class="auth-footer">არ გაქვთ ანგარიში? <a href="{% url 'register' %}">დარეგისტრირდით</a></p>
+</div>
+{% endblock %}
